@@ -31,6 +31,16 @@ def create_topic(group_id: UUID, payload: TopicCreate, db: Session = Depends(get
     return topic
 
 
+@router.get("/{group_id}/topics", response_model=list[TopicRead])
+def list_topics(group_id: UUID, db: Session = Depends(get_db)):
+    topics = db.execute(
+        select(ForumTopic)
+        .where(ForumTopic.group_id == group_id, ForumTopic.status != TopicStatus.deleted)
+        .order_by(ForumTopic.id.asc())
+    ).scalars().all()
+    return topics
+
+
 @router.patch("/{group_id}/topics/{topic_id}", response_model=TopicRead)
 def archive_topic(group_id: UUID, topic_id: int, payload: TopicArchive, db: Session = Depends(get_db)):
     topic = db.execute(
