@@ -2,9 +2,21 @@
 
 Базовый серверный каркас безопасного мессенджера на **FastAPI + SQLAlchemy**.
 
+## Почему у вас «не включается приложение»
+
+По вашему логу проблемы были из-за запуска Linux-команд в Windows CMD и отсутствия зависимостей в текущем окружении:
+- `source`/`cp` не работают в CMD;
+- `uvicorn` не найден, когда не активировано venv или `Scripts` не в PATH;
+- `ModuleNotFoundError: fastapi` — пакет не установлен именно в активном окружении;
+- `requirements.txt not found` — запуск не из корня проекта.
+
+Ниже — рабочие команды именно для Windows.
+
+---
+
 ## Быстрый старт (Windows CMD / PowerShell)
 
-> Все команды ниже выполняйте **из корня репозитория** (там, где лежат `README.md` и `requirements.txt`).
+> Выполняйте из корня репозитория (где лежат `README.md` и `requirements.txt`).
 
 ### 1) Создать и активировать виртуальное окружение
 
@@ -39,13 +51,19 @@ copy .env.example .env
 Copy-Item .env.example .env
 ```
 
-### 4) Запустить API
+### 4) Проверить окружение
+
+```bat
+python scripts\doctor.py
+```
+
+### 5) Запустить API
 
 ```bat
 python -m uvicorn ddlk_banda.main:app --reload
 ```
 
-### 5) Проверить healthcheck
+### 6) Проверить healthcheck
 
 ```bat
 curl http://127.0.0.1:8000/health
@@ -58,9 +76,17 @@ curl http://127.0.0.1:8000/health
 
 ---
 
-### Альтернатива: один bat-скрипт
+## One-click для Windows
 
-Можно запустить `scripts\start_windows.bat` — он создаст venv (если нет), поставит зависимости, создаст `.env` и поднимет сервер.
+Можно просто выполнить:
+
+```bat
+scripts\start_windows.bat
+```
+
+Скрипт создаст venv (если нет), установит зависимости, создаст `.env` и запустит сервер.
+
+---
 
 ## Быстрый старт (Linux/macOS)
 
@@ -70,26 +96,18 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 cp .env.example .env
+python scripts/doctor.py
 python -m uvicorn ddlk_banda.main:app --reload
 ```
 
 ---
 
-## Почему у вас были ошибки
-
-- `source ...` и `cp ...` — это Unix-команды, в Windows CMD они не работают.
-- `uvicorn не является ... командой` — обычно `uvicorn` не в PATH. Решение: запускать `python -m uvicorn ...`.
-- `No module named 'fastapi'` — зависимости не установлены в активированное окружение.
-- `requirements.txt not found` — команда выполнена не из корня проекта.
-
----
-
 ## Ключевые endpoints
 
+- `GET /health` — проверка состояния API.
 - `POST /groups/{group_id}/topics` — создать тему форума в супергруппе с `is_forum=true`.
 - `PATCH /groups/{group_id}/topics/{topic_id}` — архивировать/разархивировать тему.
 - `DELETE /groups/{group_id}/topics/{topic_id}` — мягкое удаление темы (`status=deleted`).
-- `GET /health` — проверка состояния API.
 
 ## Примечание по E2EE
 
