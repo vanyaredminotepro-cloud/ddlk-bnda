@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -18,10 +19,10 @@ class TopicDelete(BaseModel):
 
 class TopicRead(BaseModel):
     id: int
-    group_id: str
+    group_id: UUID
     title: str
     icon_emoji: str | None
-    last_message_id: str | None
+    last_message_id: UUID | None
     status: str
     created_at: datetime
 

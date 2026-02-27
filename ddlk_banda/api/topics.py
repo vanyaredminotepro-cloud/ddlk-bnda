@@ -1,12 +1,12 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ddlk_banda.db.models import Chat, ChatType, ForumTopic, TopicStatus
 from ddlk_banda.db.session import get_db
-from ddlk_banda.schemas.topics import TopicCreate, TopicRead
+from ddlk_banda.schemas.topics import TopicArchive, TopicCreate, TopicDelete, TopicRead
 
 router = APIRouter(prefix="/groups", tags=["forum-topics"])
 
@@ -24,9 +24,35 @@ def create_topic(group_id: UUID, payload: TopicCreate, db: Session = Depends(get
         title=payload.title,
         icon_emoji=payload.icon_emoji,
         status=TopicStatus.active,
-        created_by=None,
     )
     db.add(topic)
     db.commit()
     db.refresh(topic)
     return topic
+
+
+@router.patch("/{group_id}/topics/{topic_id}", response_model=TopicRead)
+def archive_topic(group_id: UUID, topic_id: int, payload: TopicArchive, db: Session = Depends(get_db)):
+    topic = db.execute(
+        select(ForumTopic).where(ForumTopic.id == topic_id, ForumTopic.group_id == group_id)
+    ).scalar_one_or_none()
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    topic.status = TopicStatus.archived if payload.archived else TopicStatus.active
+    db.commit()
+    db.refresh(topic)
+    return topic
+
+
+@router.delete("/{group_id}/topics/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_topic(group_id: UUID, topic_id: int, payload: TopicDelete, db: Session = Depends(get_db)):
+    topic = db.execute(
+        select(ForumTopic).where(ForumTopic.id == topic_id, ForumTopic.group_id == group_id)
+    ).scalar_one_or_none()
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    topic.status = TopicStatus.deleted
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
