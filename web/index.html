@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ddlk-banda</title>
+  <link rel="stylesheet" href="/web/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>ddlk-banda</h1>
+    <p class="hint">Демо-интерфейс форумов/тем (supergroup forum).</p>
+
+    <section class="card">
+      <h2>1) Подготовка демо-группы</h2>
+      <button id="bootstrapBtn">Создать/получить demo forum</button>
+      <p id="groupInfo" class="mono"></p>
+    </section>
+
+    <section class="card">
+      <h2>2) Создать тему</h2>
+      <input id="title" placeholder="Название темы" />
+      <input id="emoji" placeholder="Иконка emoji (опционально)" />
+      <button id="createBtn">Создать topic</button>
+    </section>
+
+    <section class="card">
+      <h2>3) Темы</h2>
+      <button id="refreshBtn">Обновить список</button>
+      <ul id="topics"></ul>
+    </section>
+  </main>
+  <script src="/web/app.js"></script>
+</body>
+</html>
